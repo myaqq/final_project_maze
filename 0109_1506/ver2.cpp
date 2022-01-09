@@ -257,7 +257,7 @@ int main()
             
         }
         elapsed2 = time.getElapsedTime();
-        if(secon){
+        if(second){
             cout << (int)(limit-(elapsed2.asSeconds()-elapsed1.asSeconds()))<< endl;
         }
         window.display();
