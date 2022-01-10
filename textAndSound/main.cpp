@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <cassert> 
 #include <SFML/Audio.hpp> 
-#include <cstdlib>
+#include <stdlib.h>
 
 using namespace std;
 using namespace sf;
@@ -34,34 +34,56 @@ int main(int argc, char** argv)
 	font.loadFromFile("BRADHITC.TTF");
 	Text text;
 	Text score;
+	Text timer;
+	Text time_str;
 	
 
 	// select the font
 	text.setFont(font); // font is a sf::Font
 	score.setFont(font);
+	timer.setFont(font);
+	time_str.setFont(font);
 
 	// set the string to display	
 	text.setString("Score: ");
 	score.setString("0");
+	timer.setString("time");
+	text.setPosition(0.f,0.f);
 	score.setPosition(100.f, 0.f);
+	timer.setPosition(0.f,30.f);
+	time_str.setPosition(100.f,30.f);
 
 
 	// set the character size
 	text.setCharacterSize(24); // in pixels, not points!
 	score.setCharacterSize(24);
+	timer.setCharacterSize(24);
+	time_str.setCharacterSize(24);
 	
 	// set the color
 	text.setFillColor(sf::Color::Red);
 	score.setFillColor(sf::Color::Red);
+	timer.setFillColor(sf::Color::Red);
+	time_str.setFillColor(sf::Color::Red);
 	
 	// set the text style
 	text.setStyle(sf::Text::Bold | sf::Text::Underlined);
 	score.setStyle(sf::Text::Bold);
+	timer.setStyle(sf::Text::Bold);
+	time_str.setStyle(sf::Text::Bold);
 
     
     int clickScore = 0;
     char clickScoreStr [33];
     float time = 90;
+    sf::Clock clock1;
+    float time1;
+    float time2;
+    string temp;
+    time1 = clock1.getElapsedTime().asSeconds();
+    bool first = true;
+	string n_str;
+
 	while (window.isOpen())
     {
 		Event event;
@@ -79,18 +101,30 @@ int main(int argc, char** argv)
             		{
             			sound.play();
             			clickScore++;
-            			itoa(clickScore, clickScoreStr, 10);
-            			score.setString(clickScoreStr);
+            			n_str = to_string(clickScore);
+						score.setString(n_str);
             		}		
 				}
+				default:
+				{}
 			}
 			
         }
+        if(first){
+            first = false;
+            time1 = clock1.getElapsedTime().asSeconds();
+        }
+        time2 = clock1.getElapsedTime().asSeconds();
+        temp = to_string(time - (time2 - time1));
+        time_str.setString(temp);
+        cout << temp << endl;
 
         window.clear();
         window.draw(map);
         window.draw(score);
         window.draw(text);
+        window.draw(timer);
+        window.draw(time_str);
         window.display();
         
         
