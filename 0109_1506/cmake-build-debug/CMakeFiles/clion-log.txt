@@ -1,5 +1,0 @@
-/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -G "CodeBlocks - Unix Makefiles" /Users/eric/Documents/GitHub/final_project_maze/0109_1506拷貝
--- Found SFML 2.5.1 in /usr/local/lib/cmake/SFML
--- Configuring done
--- Generating done
--- Build files have been written to: /Users/eric/Documents/GitHub/final_project_maze/0109_1506拷貝/cmake-build-debug
