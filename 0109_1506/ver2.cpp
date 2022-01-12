@@ -6,7 +6,7 @@
 using namespace std;
 
 struct coin{
-    bool ifAppear;
+    bool ifAppear{};
     sf::Sprite sprite2_coin;
 };
 //待改，那個時候沒教template所以我是亂寫的
@@ -316,7 +316,7 @@ int main()
                 detect_object_t = time.getElapsedTime();
             }
 
-            if(show_detectcoin_words(detect_object_t,time.getElapsedTime())){
+            if(show_detectcoin_words(detect_object_t,time.getElapsedTime()) && detected_object){
                 //window.draw(text);
                 cout << "draw text" << endl;
             }
