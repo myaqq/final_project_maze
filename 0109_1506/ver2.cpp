@@ -304,10 +304,7 @@ int main()
                 detected_object = true;
                 detect_object_t = time.getElapsedTime();
             }
-            if(show_detectcoin_words(detect_object_t,time.getElapsedTime())){
-                //window.draw(text);
-                cout << "draw text" << endl;
-            }
+
 
 
 
@@ -315,6 +312,13 @@ int main()
             drawCoins(arrBox, cntBox, window);
             if(touchCoins(sprite2_chart1, arrBox, cntBox)){
                 openBox(sprite2_chart1, v, score);
+                detected_object = true;
+                detect_object_t = time.getElapsedTime();
+            }
+
+            if(show_detectcoin_words(detect_object_t,time.getElapsedTime())){
+                //window.draw(text);
+                cout << "draw text" << endl;
             }
 
             //取得座標
