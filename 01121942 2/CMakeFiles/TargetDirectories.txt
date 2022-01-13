@@ -1,0 +1,3 @@
+/Users/eric/Downloads/01121942 2/CMakeFiles/rebuild_cache.dir
+/Users/eric/Downloads/01121942 2/CMakeFiles/edit_cache.dir
+/Users/eric/Downloads/01121942 2/CMakeFiles/sfml_install.dir
