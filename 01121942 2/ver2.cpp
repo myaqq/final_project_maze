@@ -6,7 +6,7 @@
 #include <cmath>
 #include <string>
 using namespace std;
-
+//
 struct coin{
     bool ifAppear;
     sf::Sprite sprite2_coin;
