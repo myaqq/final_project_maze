@@ -187,6 +187,7 @@ int main()
     
     
     /*--------------sounds------------*/
+    /*
 	sf::SoundBuffer getCoinBf;
 	getCoinBf.loadFromFile("getcoin.wav");
 	sf::Sound getCoin;
@@ -206,6 +207,7 @@ int main()
 	pressBtnBf.loadFromFile("pressbtn.wav");
 	sf::Sound pressBtn;
 	pressBtn.setBuffer(pressBtnBf);
+     */
 	
     /*--------------texts------------*/
 	sf::Font sitkaB;
@@ -255,7 +257,7 @@ int main()
 	openBoxMsg.setStyle(sf::Text::Regular);
     
     /*--------------music------------*/
-<<<<<<< HEAD
+/*<<<<<<< HEAD
     
 	sf::Music hellMusic;
 	sf::Music successMusic;
@@ -271,7 +273,7 @@ int main()
 	//hellMusic.openFromFile("hellMusic.ogg");
 	//successMusic.openFromFile("successMusic.ogg");
 	//failMusic.openFromFile("failMusic.ogg");
->>>>>>> 0ba152e439f1ed06534a50d35aeb5c8003dfa5a8
+>>>>>>> 0ba152e439f1ed06534a50d35aeb5c8003dfa5a8*/
     
     /*--------------計時器------------*/
     //計時器設定
@@ -303,9 +305,9 @@ int main()
     
     while (window.isOpen())
     {
-<<<<<<< HEAD
+/*<<<<<<< HEAD
     	//cout << windowOpen  << " " << hell << endl;
-=======
+=======*/
     	/*
         //cout << windowOpen  << " " << hell << endl;
 >>>>>>> 0ba152e439f1ed06534a50d35aeb5c8003dfa5a8
@@ -338,8 +340,8 @@ int main()
 <<<<<<< HEAD
 		
 =======
-		*/
->>>>>>> 0ba152e439f1ed06534a50d35aeb5c8003dfa5a8
+		
+>>>>>>> 0ba152e439f1ed06534a50d35aeb5c8003dfa5a8*/
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -377,7 +379,7 @@ int main()
                 sprite1_startButtom.setTexture(texture1_startButtom);
             }
             if(sprite1_startButtom.getGlobalBounds().contains(mousePos.x, mousePos.y) && sf::Mouse::isButtonPressed(sf::Mouse::Left)){
-                pressBtn.play();
+                //pressBtn.play();
 				first = false;
                 second = true;
                 
@@ -418,7 +420,7 @@ int main()
             drawProps(arrCoin1, cntCoin, window);
             //碰到錢幣
             if(touchCoins(sprite2_chart1, arrCoin1, cntCoin)){
-            	getCoin.play();
+            	//getCoin.play();
                 score++;
                 scoreStr = to_string(score);
                 scoreDsp.setString(scoreStr);
@@ -429,7 +431,7 @@ int main()
             drawProps(arrBox, cntBox, window);
             int boxX = 0, boxY = 0;
             if(touchBoxes(sprite2_chart1, arrBox, cntBox, boxX, boxY)){
-            	openbox.play();
+            	//openbox.play();
                 openBox(sprite2_chart1, v, score, openBoxMsg);
                 scoreStr = to_string(score);
                 scoreDsp.setString(scoreStr);
@@ -485,7 +487,7 @@ int main()
                 sprite2_backButtom.setTexture(texture2_backButtom);
             }
             if(sprite2_backButtom.getGlobalBounds().contains(mousePos.x, mousePos.y) && sf::Mouse::isButtonPressed(sf::Mouse::Left)){
-                pressBtn.play();
+                //pressBtn.play();
 				second = false;
                 first = true;
                 windowOpen = 0;
@@ -519,9 +521,9 @@ int main()
                 if((y <= 2) || detectWall(x, y, colorWall, maze1, 1) )
                 {
                     //希望撞牆聲可以完整播放，避免重疊播放
-                    if(punch.getStatus() != sf::Sound::Status::Playing) {
+                    /*if(punch.getStatus() != sf::Sound::Status::Playing) {
                         punch.play();
-                    }
+                    }*/
                 }else{
                     sprite2_maze1.setColor(colorOrigin);
                     sprite2_chart1.move(0, -v);//move chart1
@@ -530,13 +532,13 @@ int main()
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down)){
                 sprite2_chart1.setTexture(texture2_chart1_down);
                 if((y >= 1040) || detectWall(x, y, colorWall, maze1, 2)){
-<<<<<<< HEAD
+/*<<<<<<< HEAD
                     punch.play();
 =======
                     if(punch.getStatus() != sf::Sound::Status::Playing) {
                         punch.play();
                     }
->>>>>>> 0ba152e439f1ed06534a50d35aeb5c8003dfa5a8
+>>>>>>> 0ba152e439f1ed06534a50d35aeb5c8003dfa5a8*/
                 }else{
                     sprite2_maze1.setColor(colorOrigin);
                     sprite2_chart1.move(0, v);//move chart1
@@ -546,9 +548,9 @@ int main()
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left)){
                 sprite2_chart1.setTexture(texture2_chart1_left);
                 if((x <= 2) || detectWall(x, y, colorWall, maze1, 3)){
-                    if(punch.getStatus() != sf::Sound::Status::Playing){
+                    /*if(punch.getStatus() != sf::Sound::Status::Playing){
                         punch.play();
-                    }
+                    }*/
                 }else{
                     sprite2_maze1.setColor(colorOrigin);
                     sprite2_chart1.move(-v, 0);//move chart1
@@ -557,13 +559,13 @@ int main()
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right)){
                 sprite2_chart1.setTexture(texture2_chart1_right);
                 if((x >= 1040) || detectWall(x, y, colorWall, maze1, 4)){
-<<<<<<< HEAD
+/*<<<<<<< HEAD
                     punch.play();
 =======
                     if(punch.getStatus() != sf::Sound::Status::Playing){
                         punch.play();
                     }
->>>>>>> 0ba152e439f1ed06534a50d35aeb5c8003dfa5a8
+>>>>>>> 0ba152e439f1ed06534a50d35aeb5c8003dfa5a8*/
                 }else{
                     sprite2_maze1.setColor(colorOrigin);
                     sprite2_chart1.move(v, 0);//move chart1
@@ -575,11 +577,11 @@ int main()
         
         /*------------------------成功畫面-------------------------*/
         if(heaven){
-<<<<<<< HEAD
+/*<<<<<<< HEAD
         	successMusic.play();
 =======
         	//successMusic.play();
->>>>>>> 0ba152e439f1ed06534a50d35aeb5c8003dfa5a8
+>>>>>>> 0ba152e439f1ed06534a50d35aeb5c8003dfa5a8*/
             window.clear();
             window.draw(sprite2_congra);
             window.draw(sprite2_homeButtom);
@@ -611,11 +613,11 @@ int main()
         
         /*------------------------失敗畫面-------------------------*/
         if(hell){
-<<<<<<< HEAD
+/*<<<<<<< HEAD
         	failMusic.play();
 =======
         	//failMusic.play();
->>>>>>> 0ba152e439f1ed06534a50d35aeb5c8003dfa5a8
+>>>>>>> 0ba152e439f1ed06534a50d35aeb5c8003dfa5a8*/
             window.clear();
             window.draw(sprite2_failed);
             window.draw(sprite2_homeButtom);
@@ -758,12 +760,12 @@ bool touchBoxes(sf::Sprite sprite2_chart1, prop* &arrBox, int n, int &x, int &y)
 void openBox(sf::Sprite &sprite, float &v, int &score, sf::Text &openBoxMsg){
     int rn = rand();
     switch(rn % 5) {
-        case 0:
+        case 0:/*
 <<<<<<< HEAD
             openBoxMsg.setString(L"考試睡過頭，掰啦");
 =======
            	openBoxMsg.setString(L"考試睡過頭，掰啦");
->>>>>>> 0ba152e439f1ed06534a50d35aeb5c8003dfa5a8
+>>>>>>> 0ba152e439f1ed06534a50d35aeb5c8003dfa5a8*/
             sprite.setPosition(sf::Vector2f(506.f, 588.f));//set chart1 to 原點
             break;
         case 1:
