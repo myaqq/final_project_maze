@@ -24,9 +24,9 @@ bool check_collision(const sf::Sprite &a, const sf::Sprite &b){
 
 bool detectWall(int x, int y, sf::Color colorWall, sf::Image maze1, int key);
 
-void drawProps(prop* &arrCoin1, int n, sf::RenderWindow &window);
+void drawProps(prop* &arrProp, int n, sf::RenderWindow &window);
 bool touchCoins(sf::Sprite sprite2_chart1,prop* &arrCoin1, int n);
-bool touchBoxes(sf::Sprite sprite2_chart1, prop* &arrCoin1, int n, int &x, int &y);
+bool touchBoxes(sf::Sprite sprite2_chart1, prop* &arrBox, int n, int &x, int &y);
 void openBox(sf::Sprite &sprite, float &v, int &score, sf::Text &openBoxMsg);
 
 void drawRects(sf::RectangleShape** arrRect, int cntRect, sf::RenderWindow &window, int x, int y);
@@ -65,6 +65,13 @@ int main()
     sprite2_maze1.setScale(MAZE_SCALE, MAZE_SCALE); // maze scale: 0.5
     sf::Color colorOrigin = sprite2_maze1.getColor();
     
+    //採集牆壁顏色
+    sf::Image maze1;
+    if (!maze1.loadFromFile("p2_mikong.jpg")){
+        return EXIT_FAILURE;
+    }
+    sf::Color colorWall = maze1.getPixel(804, 1026);
+    
     //chart1: dot
     sf::Texture texture2_chart1_up;
     if (!texture2_chart1_up.loadFromFile("p2_chart1_up.png"))
@@ -81,15 +88,12 @@ int main()
     sf::Sprite sprite2_chart1(texture2_chart1_right);
     sprite2_chart1.setPosition(sf::Vector2f(506.f, 588.f));//set pic2
     sprite2_chart1.setScale(0.007, 0.007);
+    
+    //找座標用
+    /*
     int X = sprite2_chart1.getPosition().x;
     int Y = sprite2_chart1.getPosition().y;
-    
-    //採集牆壁顏色，maze1是採集地圖中的牆壁
-    sf::Image maze1;
-    if (!maze1.loadFromFile("p2_mikong.jpg")){
-        return EXIT_FAILURE;
-    }
-    sf::Color colorWall = maze1.getPixel(804, 1026);
+    */
     
     //coins
     sf::Texture texture2_coin1;
@@ -156,13 +160,14 @@ int main()
     sprite2_badtarget.setScale(0.05, 0.05);
     sprite2_badtarget.setPosition(sf::Vector2f(224.f, 926.f));
     
-    //碰到target後的恭喜畫面
+    //成功畫面（碰到target後）
     sf::Texture texture2_congra;
     if (!texture2_congra.loadFromFile("ph_congra.png"))
         return EXIT_FAILURE;
     sf::Sprite sprite2_congra(texture2_congra);
     sprite2_congra.setScale(0.36, 0.36);
     
+    //home按鈕
     sf::Texture texture2_homeButtom;
     if (!texture2_homeButtom.loadFromFile("ph_homeButtom.png"))
         return EXIT_FAILURE;
@@ -173,15 +178,15 @@ int main()
     sprite2_homeButtom.setScale(0.3, 0.3);
     sprite2_homeButtom.setPosition(sf::Vector2f(434.f, 846.f));
     
-    //碰到bad target後的失敗畫面
+    //失敗畫面（碰到bad target後 or 時間到）
     sf::Texture texture2_failed;
     if (!texture2_failed.loadFromFile("ph_failed.png"))
         return EXIT_FAILURE;
     sf::Sprite sprite2_failed(texture2_failed);
     sprite2_failed.setScale(0.53, 0.53);
     
-    // sounds
     
+    /*--------------sounds------------*/
 	sf::SoundBuffer getCoinBf;
 	getCoinBf.loadFromFile("getcoin.wav");
 	sf::Sound getCoin;
@@ -202,8 +207,7 @@ int main()
 	sf::Sound pressBtn;
 	pressBtn.setBuffer(pressBtnBf);
 	
-    
-	// texts
+    /*--------------texts------------*/
 	sf::Font sitkaB;
 	sf::Font msjh;
 	sitkaB.loadFromFile("SitkaB.ttc");
@@ -249,8 +253,8 @@ int main()
 	timeHint.setStyle(sf::Text::Bold);
 	restTime.setStyle(sf::Text::Bold);
 	openBoxMsg.setStyle(sf::Text::Regular);
-	
-	// music
+    
+    /*--------------music------------*/
 <<<<<<< HEAD
     
 	sf::Music hellMusic;
@@ -277,11 +281,13 @@ int main()
     sf::Time elapsed2 ;
     int limit = 100;
     
+    
+    /*--------------init------------*/
     bool first = true;
     bool second = false;
     bool heaven = false;
     bool hell = false;
-    //int v = 1;
+    
     float v = 0.9; //比較細的地圖需要跑比較慢
     int score = 0; //coin的加分機制，要跟真正的分數機制合併
     string scoreStr;
@@ -289,8 +295,11 @@ int main()
     bool ifLight = 0;
     int timeRec = elapsed2.asSeconds();
     int windowOpen = 0;
-    //以下為操作
     
+    
+    /*------------------------以下為操作----------------------*/
+    /*------------------------以下為操作----------------------*/
+    /*------------------------以下為操作----------------------*/
     
     while (window.isOpen())
     {
@@ -354,11 +363,13 @@ int main()
         }
         
         
-        //第一個畫面
+        /*------------------第一個畫面 == 開場畫面-------------------*/
         if(first){
             window.clear();
             window.draw(sprite1_start);
             window.draw(sprite1_startButtom);
+            
+            //按鈕處理
             sf::Vector2i mousePos = sf::Mouse::getPosition(window);
             if(sprite1_startButtom.getGlobalBounds().contains(mousePos.x, mousePos.y)){
                 sprite1_startButtom.setTexture(texture1_startButtom_red);
@@ -369,15 +380,13 @@ int main()
                 pressBtn.play();
 				first = false;
                 second = true;
+                
+                //reset(init)
                 windowOpen = 0;
                 window.clear();
                 window.setTitle("play window");
-                //預備讓人在正確的地方開始
+                //reset to origin
                 sprite2_chart1.setPosition(sf::Vector2f(506.f, 588.f));
-                //調整視窗大小會讓圖片物件失真
-                //要配合圖片調整(window.setSize 跟 spriteName.setScale要一起調整)
-                //window.setSize(sf::Vector2u(1680, 1065));
-                
                 //還原錢幣、寶箱初始化
                 for(int i = 0; i < cntCoin; i++){
                     arrCoin1[i].ifAppear = true;
@@ -385,19 +394,15 @@ int main()
                 for(int i = 0; i < cntBox; i++){
                     arrBox[i].ifAppear = true;
                 }
-                //剛剛用到的東西
-                //sf::Mouse::isButtonPressed(sf::Mouse::Left)
-                //spriteNAME.getGlobalBounds().contains(mousePos.x, mousePos.y)
-                v = 0.9; //比較細的地圖需要跑比較慢
-                score = 0; //coin的加分機制，要跟真正的分數機制合併
+                v = 0.9;
+                score = 0;
                 ifLight = false;
                 elapsed1 = time.getElapsedTime();//重新計時
-                
+                continue;
             }
         }
         
-        
-        //第二個畫面
+        /*------------------第二個畫面 == 遊戲畫面-------------------*/
         if(second){
             window.clear();
             window.draw(sprite2_maze1);
@@ -420,7 +425,6 @@ int main()
                 cout << "new score: " << score << endl;
             }
             
-            
             //畫上寶箱
             drawProps(arrBox, cntBox, window);
             int boxX = 0, boxY = 0;
@@ -432,20 +436,31 @@ int main()
                 openBoxMsg.setPosition(boxX, boxY);
                 timeRec = elapsed2.asSeconds();
             }
-            
+            //寶箱文字最多兩秒
             if(timeRec - elapsed2.asSeconds() <= -2)
             {
             	openBoxMsg.setString("");
             	timeRec = elapsed1.asSeconds();
 			}
 			
+            //取得dot 位置
             int x = sprite2_chart1.getPosition().x;
             int y = sprite2_chart1.getPosition().y;
+            //一直cout dot移動後座標
+            /*
+            if((x != X) || (y != Y)){
+                cout << "(" << x  << ", " << y << ")" << endl;
+                X = x;
+                Y = y;
+            }
+            */
             
             if(!ifLight){
                 //畫上正方形
                 drawRects(arrRect, cntRect, window, x, y);
             }
+            
+            //以下為黑色正方形之上方塗層-->不可以被視野限制覆蓋掉
             
             window.draw(sprite2_backButtom);
             
@@ -454,11 +469,14 @@ int main()
             window.draw(timeHint);
             window.draw(restTime);
             window.draw(openBoxMsg);
+            
+            //按著空白鍵就開燈
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
                 ifLight = true;
             }else{
                 ifLight = false;
             }
+            
             //按下返回鍵
             sf::Vector2i mousePos = sf::Mouse::getPosition(window);
             if(sprite2_backButtom.getGlobalBounds().contains(mousePos.x, mousePos.y)){
@@ -472,7 +490,7 @@ int main()
                 first = true;
                 windowOpen = 0;
                 window.clear();
-                window.setTitle("hello window");
+                window.setTitle("Final Hell");
                 continue;
                 
             }
@@ -486,7 +504,7 @@ int main()
                 window.setTitle("congratulations!");
             }
             
-            //走到 hell /*-----倒數到0時可能也要合併成失敗畫面-----*/
+            //走到 hell
             if(check_collision(sprite2_chart1, sprite2_badtarget)){
                 second = false;
                 hell = true;
@@ -495,22 +513,15 @@ int main()
                 window.setTitle("FAILED");
             }
             
-            //取得座標
-            //一直cout chart1移動後座標
-            /*
-            if((x != X) || (y != Y)){
-                cout << "(" << x  << ", " << y << ")" << endl;
-                X = x;
-                Y = y;
-            }
-            */
+            //上下左右控制
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up)){
                 sprite2_chart1.setTexture(texture2_chart1_up);
                 if((y <= 2) || detectWall(x, y, colorWall, maze1, 1) )
                 {
+                    //希望撞牆聲可以完整播放，避免重疊播放
                     if(punch.getStatus() != sf::Sound::Status::Playing) {
                         punch.play();
-                    }//碰到牆壁背景就變紅色
+                    }
                 }else{
                     sprite2_maze1.setColor(colorOrigin);
                     sprite2_chart1.move(0, -v);//move chart1
@@ -561,6 +572,8 @@ int main()
             
             
         }
+        
+        /*------------------------成功畫面-------------------------*/
         if(heaven){
 <<<<<<< HEAD
         	successMusic.play();
@@ -575,6 +588,7 @@ int main()
             window.draw(scoreHint);
             window.draw(scoreDsp);
             
+            //回主畫面按鈕
             sf::Vector2i mousePos = sf::Mouse::getPosition(window);
             if(sprite2_homeButtom.getGlobalBounds().contains(mousePos.x, mousePos.y)){
                 sprite2_homeButtom.setTexture(texture2_homeButtom_red);
@@ -586,7 +600,7 @@ int main()
                 first = true;
                 windowOpen = 0;
                 window.clear();
-                window.setTitle("hello window");
+                window.setTitle("Final Hell");
                 scoreHint.setPosition(10.f, 10.f);
 				scoreDsp.setPosition(200.f, 10.f);
                 continue;
@@ -594,6 +608,8 @@ int main()
             
             
         }
+        
+        /*------------------------失敗畫面-------------------------*/
         if(hell){
 <<<<<<< HEAD
         	failMusic.play();
@@ -603,6 +619,8 @@ int main()
             window.clear();
             window.draw(sprite2_failed);
             window.draw(sprite2_homeButtom);
+            
+            //按鈕處理
             sf::Vector2i mousePos = sf::Mouse::getPosition(window);
             if(sprite2_homeButtom.getGlobalBounds().contains(mousePos.x, mousePos.y)){
                 sprite2_homeButtom.setTexture(texture2_homeButtom_red);
@@ -615,7 +633,7 @@ int main()
                 first = true;
                 windowOpen = 0;
                 window.clear();
-                window.setTitle("hello window");
+                window.setTitle("Final Hell");
                 continue;
             }
             
@@ -705,10 +723,11 @@ bool detectWall(int x, int y, sf::Color colorWall, sf::Image maze1, int key){
     return false;
 }
 
-void drawProps(prop* &arrCoin1, int n, sf::RenderWindow &window){
+//畫寶箱、錢幣
+void drawProps(prop* &arrProp, int n, sf::RenderWindow &window){
     for(int i = 0; i < n; i++){
-        if(arrCoin1[i].ifAppear == true){
-            window.draw(arrCoin1[i].sprite2_coin);
+        if(arrProp[i].ifAppear == true){
+            window.draw(arrProp[i].sprite2_coin);
         }
     }
 }
@@ -723,12 +742,12 @@ bool touchCoins(sf::Sprite sprite2_chart1, prop* &arrCoin1, int n){
     return false;
 }
 
-bool touchBoxes(sf::Sprite sprite2_chart1, prop* &arrCoin1, int n, int &x, int &y){
+bool touchBoxes(sf::Sprite sprite2_chart1, prop* &arrBox, int n, int &x, int &y){
     for(int i = 0; i < n; i++){
-        if((arrCoin1[i].ifAppear == true) && (check_collision(sprite2_chart1, arrCoin1[i].sprite2_coin))){
-            x = arrCoin1[i].sprite2_coin.getPosition().x;
-            y = arrCoin1[i].sprite2_coin.getPosition().y;
-            arrCoin1[i].ifAppear = false;
+        if((arrBox[i].ifAppear == true) && (check_collision(sprite2_chart1, arrBox[i].sprite2_coin))){
+            x = arrBox[i].sprite2_coin.getPosition().x;
+            y = arrBox[i].sprite2_coin.getPosition().y;
+            arrBox[i].ifAppear = false;
             return true;
         }
     }
@@ -778,6 +797,7 @@ void openBox(sf::Sprite &sprite, float &v, int &score, sf::Text &openBoxMsg){
     
 }
 
+//畫正方形
 void drawRects(sf::RectangleShape** arrRect, int cntRect, sf::RenderWindow &window, int x, int y){
     int lenRect = LEN_RECT;
     for(int i = 0; i < cntRect; i++){
@@ -804,7 +824,7 @@ float dist(int x1, int x2, int y1, int y2){
     
 }
 
-
+//訂定箱子、錢幣點位
 void setBoxes(prop* arrBox){
     arrBox[0].sprite2_coin.setPosition(sf::Vector2f(276.f, 888.f));
     arrBox[1].sprite2_coin.setPosition(sf::Vector2f(140.f, 656.f));
