@@ -6,42 +6,41 @@
 #include <cmath>
 #include <string>
 using namespace std;
-//
-struct coin{
+
+const float MAZE_SCALE = 0.5;
+const int LEN_RECT = 20; /*----setting-----*/
+
+struct prop{
     bool ifAppear;
     sf::Sprite sprite2_coin;
 };
-//待改，那個時候沒教template所以我是亂寫的
-//template<typename sf::Sprite,typename sf::Sprite>
-bool check_collision(const sf::Sprite &a, const sf::Sprite &b){ //碰撞檢測，矩形
+
+//碰撞檢測，矩形
+bool check_collision(const sf::Sprite &a, const sf::Sprite &b){
     sf::FloatRect box1 = a.getGlobalBounds();
     sf::FloatRect box2 = b.getGlobalBounds();
     return box1.intersects(box2);
 }
 
-bool detectWall(int x, int y, sf::Color colorWall, sf::Image maze1);
-bool detectWall_up(int x, int y, sf::Color colorWall, sf::Image maze1);
-bool detectWall_down(int x, int y, sf::Color colorWall, sf::Image maze1);
-bool detectWall_left(int x, int y, sf::Color colorWall, sf::Image maze1);
-bool detectWall_right(int x, int y, sf::Color colorWall, sf::Image maze1);
+bool detectWall(int x, int y, sf::Color colorWall, sf::Image maze1, int key);
 
-void drawCoins(coin* &arrCoin1, int n, sf::RenderWindow &window);
-bool touchCoins(sf::Sprite sprite2_chart1, coin* &arrCoin1, int n);
-bool touchBoxes(sf::Sprite sprite2_chart1, coin* &arrCoin1, int n, int &x, int &y);
+void drawProps(prop* &arrCoin1, int n, sf::RenderWindow &window);
+bool touchCoins(sf::Sprite sprite2_chart1,prop* &arrCoin1, int n);
+bool touchBoxes(sf::Sprite sprite2_chart1, prop* &arrCoin1, int n, int &x, int &y);
 void openBox(sf::Sprite &sprite, float &v, int &score, sf::Text &openBoxMsg);
 
 void drawRects(sf::RectangleShape** arrRect, int cntRect, sf::RenderWindow &window, int x, int y);
 float dist(int x1, int x2, int y1, int y2);
 
-void setBoxes(coin* arrBox);
-void setCoins(coin* arrCoin1);
+void setBoxes(prop* arrBox);
+void setCoins(prop* arrCoin1);
 int main()
 {
     int winW = 1050;
     int winL = 1050;
     sf::RenderWindow window(sf::VideoMode(winW, winL), "Final Hell");
     
-    //畫面一要用到的物件(texture, sprite)
+    //畫面一要用到的物件(開場背景、開始按鈕)
     sf::Texture texture1_start;
     if (!texture1_start.loadFromFile("p1_start.png"))
         return EXIT_FAILURE;
@@ -58,12 +57,12 @@ int main()
     sprite1_startButtom.setPosition(sf::Vector2f(360.f, 700.f));
     sprite1_startButtom.setScale(0.5, 0.5);
     
-    //畫面二要用到的物件(迷宮、人物、錢幣、寶箱、返回鍵)
+    //畫面二要用到的物件(迷宮、人物、錢幣、寶箱、返回鍵、終點們)
     sf::Texture texture2_maze0;
     if (!texture2_maze0.loadFromFile("p2_mikong.jpg"))
         return EXIT_FAILURE;
     sf::Sprite sprite2_maze1(texture2_maze0);
-    sprite2_maze1.setScale(0.5, 0.5);
+    sprite2_maze1.setScale(MAZE_SCALE, MAZE_SCALE); // maze scale: 0.5
     sf::Color colorOrigin = sprite2_maze1.getColor();
     
     //chart1: dot
@@ -98,7 +97,7 @@ int main()
         return EXIT_FAILURE;
    
     int cntCoin = 55;/*-----設置錢幣數量----*/
-    coin* arrCoin1 = new coin[cntCoin];
+    prop* arrCoin1 = new prop[cntCoin];
     for(int i = 0; i < cntCoin; i++){
         arrCoin1[i].ifAppear = true;
         arrCoin1[i].sprite2_coin.setTexture(texture2_coin1);
@@ -112,7 +111,7 @@ int main()
         return EXIT_FAILURE;
     int cntBox = 13;/*-----設置寶箱數量----*/
     
-    coin *arrBox = new coin[cntBox];
+    prop *arrBox = new prop[cntBox];
     for(int i = 0; i < cntBox; i++){
         arrBox[i].ifAppear = true;
         arrBox[i].sprite2_coin.setTexture(texture2_box);
@@ -131,7 +130,8 @@ int main()
     sprite2_backButtom.setPosition(sf::Vector2f(786.f, 952.f));
     sprite2_backButtom.setScale(0.3, 0.3);
     
-    int lenRect = 20;/*------setting-----*/
+    //視野正方形
+    int lenRect = LEN_RECT;
     int cntRect = (winL/lenRect) + 1;
     sf::RectangleShape** arrRect = new sf::RectangleShape*[cntRect];
     for(int i = 0; i < cntRect; i++) {
@@ -410,7 +410,7 @@ int main()
             scoreDsp.setString(scoreStr);
             
             //畫上錢幣
-            drawCoins(arrCoin1, cntCoin, window);
+            drawProps(arrCoin1, cntCoin, window);
             //碰到錢幣
             if(touchCoins(sprite2_chart1, arrCoin1, cntCoin)){
             	getCoin.play();
@@ -422,7 +422,7 @@ int main()
             
             
             //畫上寶箱
-            drawCoins(arrBox, cntBox, window);
+            drawProps(arrBox, cntBox, window);
             int boxX = 0, boxY = 0;
             if(touchBoxes(sprite2_chart1, arrBox, cntBox, boxX, boxY)){
             	openbox.play();
@@ -504,17 +504,10 @@ int main()
                 Y = y;
             }
             */
-            /*
-            if(detectWall(x, y, colorWall, maze1) == false) //自動偵測顏色，與牆壁顏色對照
-            {
-            	punch.play();
-			}
-            */
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up)){
                 sprite2_chart1.setTexture(texture2_chart1_up);
-                if((y <= 2) || detectWall_up(x, y, colorWall, maze1) )
+                if((y <= 2) || detectWall(x, y, colorWall, maze1, 1) )
                 {
-                    //我把邊界條件的警告（紅色背景）註解掉了，眼睛好痛xd
                     if(punch.getStatus() != sf::Sound::Status::Playing) {
                         punch.play();
                     }//碰到牆壁背景就變紅色
@@ -525,7 +518,7 @@ int main()
             }
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down)){
                 sprite2_chart1.setTexture(texture2_chart1_down);
-                if((y >= 1040) || detectWall_down(x, y, colorWall, maze1)){
+                if((y >= 1040) || detectWall(x, y, colorWall, maze1, 2)){
 <<<<<<< HEAD
                     punch.play();
 =======
@@ -541,7 +534,7 @@ int main()
             }
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left)){
                 sprite2_chart1.setTexture(texture2_chart1_left);
-                if((x <= 2) || detectWall_left(x, y, colorWall, maze1)){
+                if((x <= 2) || detectWall(x, y, colorWall, maze1, 3)){
                     if(punch.getStatus() != sf::Sound::Status::Playing){
                         punch.play();
                     }
@@ -552,7 +545,7 @@ int main()
             }
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right)){
                 sprite2_chart1.setTexture(texture2_chart1_right);
-                if((x >= 1040) || detectWall_right(x, y, colorWall, maze1)){
+                if((x >= 1040) || detectWall(x, y, colorWall, maze1, 4)){
 <<<<<<< HEAD
                     punch.play();
 =======
@@ -660,102 +653,59 @@ int main()
     return EXIT_SUCCESS;
 }
 
-bool detectWall(int x, int y, sf::Color colorWall, sf::Image maze1){
-    //x = x / 1.3; 如果有調整背景大小
-    //y = y / 1.3;
-    //寬度19, 長度19
-    int w = 20, l = 20;
-    sf::Color color_at_airplane = maze1.getPixel(x, y);
-    for(int i = 0; i < w; i++){
-        color_at_airplane = maze1.getPixel(x + i, y);
-        if (color_at_airplane == colorWall) {
-            return true;
-        }
-        color_at_airplane = maze1.getPixel(x + i, y + l);
-        if (color_at_airplane == colorWall) {
-            return true;
-        }
-    }
-    for(int j = 0; j < l; j++){
-        color_at_airplane = maze1.getPixel(x, y + j);
-        if (color_at_airplane == colorWall) {
-            return true;
-        }
-        color_at_airplane = maze1.getPixel(x + w, y + j);
-        if (color_at_airplane == colorWall) {
-            return true;
-        }
-    }
-    return false;
-}
-
-//一定要分成上下左右偵測，上下左右是四個案例
-bool detectWall_up(int x, int y, sf::Color colorWall, sf::Image maze1){
-    x = x / 0.5; //如果有調整背景大小
-    y = y / 0.5;
-    //寬度10, 長度10
+bool detectWall(int x, int y, sf::Color colorWall, sf::Image maze1, int key){
+    x = x / MAZE_SCALE; //如果有調整背景大小
+    y = y / MAZE_SCALE;
+    //寬度7, 長度7
     int w = 7, l = 7;
-    w = w / 0.5;
-    l = l / 0.5;
-    sf::Color color_at_airplane = maze1.getPixel(x, y);
-    for(int i = 2; i < w; i++){
-        color_at_airplane = maze1.getPixel(x + i, y); //up
-        if (color_at_airplane == colorWall) {
-            return true;
-        }
+    w = w / MAZE_SCALE;
+    l = l / MAZE_SCALE;
+    sf::Color color_at_chart = maze1.getPixel(x, y);
+    switch(key){
+        case 1:
+            for(int i = 2; i < w; i++){
+                color_at_chart = maze1.getPixel(x + i, y); //up
+                if (color_at_chart == colorWall) {
+                    return true;
+                }
+            }
+            return false;
+            break;
+        case 2:
+            for(int i = 2; i < w; i++){
+                color_at_chart = maze1.getPixel(x + i, y + l); //down
+                if (color_at_chart == colorWall) {
+                    return true;
+                }
+            }
+            return false;
+            break;
+        case 3:
+            for(int j = 2; j < l; j++){
+                color_at_chart = maze1.getPixel(x, y + j); //left
+                if (color_at_chart == colorWall) {
+                    return true;
+                }
+            }
+            return false;
+            break;
+        case 4:
+            for(int j = 2; j < l; j++){
+                color_at_chart = maze1.getPixel(x + w, y + j); //right
+                if (color_at_chart == colorWall) {
+                    return true;
+                }
+            }
+            return false;
+            break;
+        default:
+            cout << "keyboard broken" << endl;
+            break;
     }
     return false;
 }
 
-bool detectWall_down(int x, int y, sf::Color colorWall, sf::Image maze1){
-    x = x / 0.5; //如果有調整背景大小
-    y = y / 0.5;
-    int w = 7, l = 7;
-    w = w / 0.5;
-    l = l / 0.5;
-    sf::Color color_at_airplane = maze1.getPixel(x, y);
-    for(int i = 2; i < w; i++){
-        color_at_airplane = maze1.getPixel(x + i, y + l); //down
-        if (color_at_airplane == colorWall) {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool detectWall_left(int x, int y, sf::Color colorWall, sf::Image maze1){
-    x = x / 0.5; //如果有調整背景大小
-    y = y / 0.5;
-    int w = 7, l = 7;
-    w = w / 0.5;
-    l = l / 0.5;
-    sf::Color color_at_airplane = maze1.getPixel(x, y);
-    for(int j = 2; j < l; j++){
-        color_at_airplane = maze1.getPixel(x, y + j); //left
-        if (color_at_airplane == colorWall) {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool detectWall_right(int x, int y, sf::Color colorWall, sf::Image maze1){
-    x = x / 0.5; //如果有調整背景大小
-    y = y / 0.5;
-    int w = 7, l = 7;
-    w = w / 0.5;
-    l = l / 0.5;
-    sf::Color color_at_airplane = maze1.getPixel(x, y);
-    for(int j = 2; j < l; j++){
-        color_at_airplane = maze1.getPixel(x + w, y + j); //right
-        if (color_at_airplane == colorWall) {
-            return true;
-        }
-    }
-    return false;
-}
-
-void drawCoins(coin* &arrCoin1, int n, sf::RenderWindow &window){
+void drawProps(prop* &arrCoin1, int n, sf::RenderWindow &window){
     for(int i = 0; i < n; i++){
         if(arrCoin1[i].ifAppear == true){
             window.draw(arrCoin1[i].sprite2_coin);
@@ -763,7 +713,7 @@ void drawCoins(coin* &arrCoin1, int n, sf::RenderWindow &window){
     }
 }
 
-bool touchCoins(sf::Sprite sprite2_chart1, coin* &arrCoin1, int n){
+bool touchCoins(sf::Sprite sprite2_chart1, prop* &arrCoin1, int n){
     for(int i = 0; i < n; i++){
         if((arrCoin1[i].ifAppear == true) && (check_collision(sprite2_chart1, arrCoin1[i].sprite2_coin))){
             arrCoin1[i].ifAppear = false;
@@ -773,7 +723,7 @@ bool touchCoins(sf::Sprite sprite2_chart1, coin* &arrCoin1, int n){
     return false;
 }
 
-bool touchBoxes(sf::Sprite sprite2_chart1, coin* &arrCoin1, int n, int &x, int &y){
+bool touchBoxes(sf::Sprite sprite2_chart1, prop* &arrCoin1, int n, int &x, int &y){
     for(int i = 0; i < n; i++){
         if((arrCoin1[i].ifAppear == true) && (check_collision(sprite2_chart1, arrCoin1[i].sprite2_coin))){
             x = arrCoin1[i].sprite2_coin.getPosition().x;
@@ -786,8 +736,6 @@ bool touchBoxes(sf::Sprite sprite2_chart1, coin* &arrCoin1, int n, int &x, int &
 }
 
 
-//開啟寶箱功能的函數，可以加點音效（？
-//不知道能不能做出加時間、扣時間的case
 void openBox(sf::Sprite &sprite, float &v, int &score, sf::Text &openBoxMsg){
     int rn = rand();
     switch(rn % 5) {
@@ -800,24 +748,24 @@ void openBox(sf::Sprite &sprite, float &v, int &score, sf::Text &openBoxMsg){
             sprite.setPosition(sf::Vector2f(506.f, 588.f));//set chart1 to 原點
             break;
         case 1:
-            //cout << "熬夜奮戰好像獲得了些什麼，啊，那不是分數，那是我省下的暑修金" << endl;
+            //加分
             openBoxMsg.setString(L"熬夜爆肝 分數++");
 			score += 10;
-            cout << "new score: " << score << endl; //到時候要跟真正的得分機制合併
+            cout << "new score: " << score << endl;
             break;
         case 2:
-            //cout << "積 不 出 來 ಥ_ಥ 分數也 積 不 出 來" << endl;
+            //減分
             openBoxMsg.setString(L"積不出來qq 分數--");
 			score -= 10;
-            cout << "new score: " << score << endl; //到時候要跟真正的得分機制合併
+            cout << "new score: " << score << endl;
             break;
         case 3:
-            //cout << "考前突然通靈，速度up up" << endl;
+            //加速
             openBoxMsg.setString(L"考前通靈 速度up up");
 			v = v * 2;
             break;
         case 4:
-            //cout << "唸書唸到ㄎㄧㄤ，逐漸進入夢鄉，速度跟著進度下去啦" << endl;
+            //減速
             openBoxMsg.setString(L"唸到ㄎㄧㄤ掉 速度--");
 			v = v / 2;
             break;
@@ -831,7 +779,7 @@ void openBox(sf::Sprite &sprite, float &v, int &score, sf::Text &openBoxMsg){
 }
 
 void drawRects(sf::RectangleShape** arrRect, int cntRect, sf::RenderWindow &window, int x, int y){
-    int lenRect = 20; /*------要改------*/
+    int lenRect = LEN_RECT;
     for(int i = 0; i < cntRect; i++){
         for(int j = 0; j < cntRect; j++){
             if(dist(x, (i*lenRect + (lenRect/2)), y, (j*lenRect + (lenRect/2))) < 75.0){
@@ -857,7 +805,7 @@ float dist(int x1, int x2, int y1, int y2){
 }
 
 
-void setBoxes(coin* arrBox){
+void setBoxes(prop* arrBox){
     arrBox[0].sprite2_coin.setPosition(sf::Vector2f(276.f, 888.f));
     arrBox[1].sprite2_coin.setPosition(sf::Vector2f(140.f, 656.f));
     arrBox[2].sprite2_coin.setPosition(sf::Vector2f(252.f, 806.f));
@@ -874,7 +822,7 @@ void setBoxes(coin* arrBox){
     
     return;
 }
-void setCoins(coin* arrCoin1){
+void setCoins(prop* arrCoin1){
     arrCoin1[0].sprite2_coin.setPosition(sf::Vector2f(204.f, 806.f));
     arrCoin1[1].sprite2_coin.setPosition(sf::Vector2f(174.f, 760.f));
     arrCoin1[2].sprite2_coin.setPosition(sf::Vector2f(152.f, 708.f));
